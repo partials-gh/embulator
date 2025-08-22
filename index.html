@@ -17,15 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.0/nipplejs.min.js"></script>
-	<script src="gl2gpu.js"></script>
-<script>
-  GL2GPU.enable({
-    interceptGetContext: true,
-    supportWebGL2: true,
-    verbose: true,
-    fallbackToWebGL: false
-  });
-</script>
+	
 
     <style>
         /* #maindiv {
@@ -77,6 +69,24 @@
 
 <body>
     <canvas id="canvas" style="width: 640px;display: none;"></canvas>
+
+	<script src="gl2gpu.js"></script>
+<script>
+  if (window.GL2GPU) {
+    GL2GPU.enable({
+      interceptGetContext: true, // hook into WebGL calls
+      supportWebGL2: true,       // handle WebGL2 if used
+      verbose: true,             // log to console for debugging
+      fallbackToWebGL: true      // run normally if WebGPU not available
+    });
+  } else {
+    console.warn('GL2GPU not found — running with normal WebGL.');
+  }
+
+  // 2) Tell Emscripten which canvas to use
+  window.Module = window.Module || {};
+  Module.canvas = document.getElementById('canvas');
+</script>
     
     <div id="maindiv" class="container text-center">
         <div id="topPanel" style="display: none;">
@@ -980,5 +990,6 @@
 </body>
 
 </html>
+
 
 
