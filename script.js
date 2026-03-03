@@ -53,7 +53,7 @@ class MyClass {
             flaName: '',
             swapSticks: false,
             mouseMode: false,
-            useZasCMobile: false, //used for starcraft mobile
+            useZasCMobile: false,
             showFPS: true,
             invert2P: false,
             invert3P: false,
@@ -80,14 +80,11 @@ class MyClass {
         //comes from settings.js
         this.rivetsData.settings = window["N64WASMSETTINGS"];
 
-        if (this.rivetsData.settings.CLOUDSAVEURL!="")
-        {
+        if (this.rivetsData.settings.CLOUDSAVEURL != "") {
             this.rivetsData.showLogin = true;
         }
 
-
-        if (window["ROMLIST"].length > 0)
-        {
+        if (window["ROMLIST"].length > 0) {
             this.rivetsData.hasRoms = true;
             window["ROMLIST"].forEach(rom => {
                 this.rivetsData.romList.push(rom);
@@ -109,8 +106,6 @@ class MyClass {
         rivets.bind(document.getElementById('lblError'), { data: this.rivetsData });
         rivets.bind(document.getElementById('mobileBottomPanel'), { data: this.rivetsData });
         rivets.bind(document.getElementById('mobileButtons'), { data: this.rivetsData });
-        
-        
 
         this.setupDragDropRom();
         this.detectMobile();
@@ -118,19 +113,17 @@ class MyClass {
         this.createDB();
         this.retrieveSettings();
 
-        window.addEventListener("resize", function() {
-            // RESIZING THE IFRAME WHEN THE SCREEN SIZE CHANGES
+        window.addEventListener("resize", function () {
             myClass.resizeCanvas();
         });
 
         $('#topPanel').show();
         $('#lblErrorOuter').show();
-        
+
     }
 
-    setupInputController(){
+    setupInputController() {
         this.rivetsData.inputController = new InputController();
-        
 
         //try to load keymappings from localstorage
         try {
@@ -139,25 +132,23 @@ class MyClass {
                 let keymappings_object = JSON.parse(keymappings);
 
                 for (let [key, value] of Object.entries(keymappings_object)) {
-                    if (key in this.rivetsData.inputController.KeyMappings){
+                    if (key in this.rivetsData.inputController.KeyMappings) {
                         this.rivetsData.inputController.KeyMappings[key] = value;
                     }
                 }
             }
         } catch (error) { }
-        
+
     }
 
-    inputLoop(){
+    inputLoop() {
         myClass.rivetsData.inputController.update();
-        if (myClass.rivetsData.beforeEmulatorStarted)
-        {
+        if (myClass.rivetsData.beforeEmulatorStarted) {
             setTimeout(() => {
                 myClass.inputLoop();
             }, 100);
         }
     }
-
 
     processPrintStatement(text) {
         console.log(text);
@@ -166,30 +157,26 @@ class MyClass {
         if (text.includes('mupen64plus: Starting R4300 emulator: Cached Interpreter')) {
             console.log('detected emulator started');
 
-            if (myClass.loadSavestateAfterBoot)
-            {
+            if (myClass.loadSavestateAfterBoot) {
                 setTimeout(() => {
                     myClass.loadCloud();
-
                     myClass.afterRun();
                 }, 500);
             }
-            
         }
 
         //backup sram event
-        if (text.includes('writing game.savememory')){
+        if (text.includes('writing game.savememory')) {
             setTimeout(() => {
                 myClass.SaveSram();
             }, 100);
         }
     }
 
-    detectMobile(){
+    detectMobile() {
         let isIphone = navigator.userAgent.toLocaleLowerCase().includes('iphone');
         let isIpad = navigator.userAgent.toLocaleLowerCase().includes('ipad');
-        if (isIphone || isIpad)
-        {
+        if (isIphone || isIpad) {
             this.iosMode = true;
             try {
                 let iosVersion = navigator.userAgent.substring(navigator.userAgent.indexOf("iPhone OS ") + 10);
@@ -197,31 +184,23 @@ class MyClass {
                 iosVersion = iosVersion.substring(0, iosVersion.indexOf('_'));
                 this.iosVersion = parseInt(iosVersion);
             } catch (err) { }
-    
-            //don't need this anymore
-            // if (this.iosVersion > 15) {
-            //     this.rivetsData.iosShowWarning = true;
-            // }
         }
-         if (window.innerWidth < 600 || isIphone)
+        if (window.innerWidth < 600 || isIphone)
             this.mobileMode = true;
         else
             this.mobileMode = false;
     }
 
-    async LoadEmulator(byteArray){
-        if (this.rom_name.toLocaleLowerCase().endsWith('.zip'))
-        {
+    async LoadEmulator(byteArray) {
+        if (this.rom_name.toLocaleLowerCase().endsWith('.zip')) {
             this.rivetsData.lblError = 'Zip format not supported. Please uncompress first.'
             this.rivetsData.beforeEmulatorStarted = false;
-        }
-        else
-        {
+        } else {
             await this.writeAssets();
-            FS.writeFile('custom.v64',byteArray);
+            FS.writeFile('custom.v64', byteArray);
             this.beforeRun();
             this.WriteConfigFile();
-            this.initAudio(); //need to initAudio before next call for iOS to work
+            this.initAudio();
             await this.LoadSram();
             Module.callMain(['custom.v64']);
             this.findInDatabase();
@@ -231,21 +210,16 @@ class MyClass {
             this.rivetsData.beforeEmulatorStarted = false;
             this.showToast = Module.cwrap('neil_toast_message', null, ['string']);
             this.toggleFPSModule = Module.cwrap('toggleFPS', null, ['number']);
-            this.sendMobileControls = Module.cwrap('neil_send_mobile_controls', null, ['string','string','string']);
+            this.sendMobileControls = Module.cwrap('neil_send_mobile_controls', null, ['string', 'string', 'string']);
             this.setRemainingAudio = Module.cwrap('neil_set_buffer_remaining', null, ['number']);
         }
-
     }
 
-    async writeAssets(){
-
+    async writeAssets() {
         let file = 'assets.zip';
         let responseText = await this.downloadFile(file);
-        console.log(file,responseText.length);
-        FS.writeFile(
-            file, // file name
-            responseText
-        );
+        console.log(file, responseText.length);
+        FS.writeFile(file, responseText);
     }
 
     async downloadFile(url) {
@@ -258,7 +232,7 @@ class MyClass {
                 var byteArray = new Uint8Array(arrayBuffer);
                 resolve(byteArray);
             };
-            oReq.onerror = function(){
+            oReq.onerror = function () {
                 reject({
                     status: oReq.status,
                     statusText: oReq.statusText
@@ -269,155 +243,97 @@ class MyClass {
     }
 
     async initAudio() {
-
-        if (!this.audioInited)
-        {
+        if (!this.audioInited) {
             this.audioInited = true;
             this.audioContext = new AudioContext({
                 latencyHint: 'interactive',
-                sampleRate: 44100, //this number has to match what's in gui.cpp
+                sampleRate: 44100,
             });
             this.gainNode = this.audioContext.createGain();
             this.gainNode.gain.value = 0.5;
             this.gainNode.connect(this.audioContext.destination);
-    
-            //point at where the emulator is storing the audio buffer
-            this.audioBufferResampled = new Int16Array(Module.HEAP16.buffer,Module._neilGetSoundBufferResampledAddress(),64000);
-    
+
+            this.audioBufferResampled = new Int16Array(Module.HEAP16.buffer, Module._neilGetSoundBufferResampledAddress(), 64000);
+
             this.audioWritePosition = 0;
             this.audioReadPosition = 0;
             this.audioBackOffCounter = 0;
             this.audioThreadLock = false;
-    
-    
-            //emulator is synced to the OnAudioProcess event because it's way
-            //more accurate than emscripten_set_main_loop or RAF
-            //and the old method was having constant emulator slowdown swings
-            //so the audio suffered as a result
+
             this.pcmPlayer = this.audioContext.createScriptProcessor(AUDIOBUFFSIZE, 2, 2);
             this.pcmPlayer.onaudioprocess = this.AudioProcessRecurring.bind(this);
             this.pcmPlayer.connect(this.gainNode);
         }
-
     }
 
-    hasEnoughSamples(){
-
+    hasEnoughSamples() {
         let readPositionTemp = this.audioReadPosition;
         let enoughSamples = true;
-        for (let sample = 0; sample < AUDIOBUFFSIZE; sample++)
-        {
+        for (let sample = 0; sample < AUDIOBUFFSIZE; sample++) {
             if (this.audioWritePosition != readPositionTemp) {
                 readPositionTemp += 2;
-
-                //wrap back around within the ring buffer
                 if (readPositionTemp == 64000) {
                     readPositionTemp = 0;
                 }
-            }
-            else {
+            } else {
                 enoughSamples = false;
             }
         }
-
         return enoughSamples;
     }
 
-    //this method keeps getting called when it needs more audio
-    //data to play so we just keep streaming it from the emulator
-    AudioProcessRecurring(audioProcessingEvent){
-
-        //I think this method is thread safe but just in case
-        if (this.audioThreadLock || this.rivetsData.beforeEmulatorStarted)
-        {
-            // console.log('audio thread dupe');
+    AudioProcessRecurring(audioProcessingEvent) {
+        if (this.audioThreadLock || this.rivetsData.beforeEmulatorStarted) {
             return;
         }
-        
+
         this.audioThreadLock = true;
-
-
 
         var sampleRate = audioProcessingEvent.outputBuffer.sampleRate;
         let outputBuffer = audioProcessingEvent.outputBuffer;
         let outputData1 = outputBuffer.getChannelData(0);
         let outputData2 = outputBuffer.getChannelData(1);
 
-        if (this.rivetsData.disableAudioSync)
-        {
+        if (this.rivetsData.disableAudioSync) {
             this.audioWritePosition = Module._neilGetAudioWritePosition();
-        }
-        else
-        {
+        } else {
             Module._runMainLoop();
-
             this.audioWritePosition = Module._neilGetAudioWritePosition();
-    
-    
-            if (!this.hasEnoughSamples())
-            {
+
+            if (!this.hasEnoughSamples()) {
                 Module._runMainLoop();
             }
-    
+
             this.audioWritePosition = Module._neilGetAudioWritePosition();
         }
-
-    
-
-        // if (!this.hasEnoughSamples())
-        //     console.log('not enough samples');
-
-        // console.log('Write: ' + this.audioWritePosition + ' Read: ' + this.audioReadPosition);
 
         let hadSkip = false;
 
-
-        //the bytes are arranged L,R,L,R,etc.... for each speaker
         for (let sample = 0; sample < AUDIOBUFFSIZE; sample++) {
-
             if (this.audioWritePosition != this.audioReadPosition) {
                 outputData1[sample] = (this.audioBufferResampled[this.audioReadPosition] / 32768);
                 outputData2[sample] = (this.audioBufferResampled[this.audioReadPosition + 1] / 32768);
-
                 this.audioReadPosition += 2;
-
-                //wrap back around within the ring buffer
                 if (this.audioReadPosition == 64000) {
                     this.audioReadPosition = 0;
                 }
-            }
-            else {
-                //if there's nothing to play then just play silence
+            } else {
                 outputData1[sample] = 0;
                 outputData2[sample] = 0;
-
-                //if we caught up on samples then back off
-                //for 2 frames to buffer some audio
-                // if (this.audioBackOffCounter == 0) {
-                //     this.audioBackOffCounter = 2;
-                // }
-
                 hadSkip = true;
-
             }
-
         }
 
-        
         if (hadSkip)
             this.rivetsData.audioSkipCount++;
 
-        //calculate remaining audio in buffer
         let audioBufferRemaining = 0;
         let readPositionTemp = this.audioReadPosition;
         let writePositionTemp = this.audioWritePosition;
-        for(let i = 0; i < 64000; i++)
-        {
-            if (readPositionTemp != writePositionTemp)
-            {
+        for (let i = 0; i < 64000; i++) {
+            if (readPositionTemp != writePositionTemp) {
                 readPositionTemp += 2;
                 audioBufferRemaining += 2;
-
                 if (readPositionTemp == 64000) {
                     readPositionTemp = 0;
                 }
@@ -425,25 +341,20 @@ class MyClass {
         }
 
         this.setRemainingAudio(audioBufferRemaining);
-        //myClass.showToast("Buffer: " + audioBufferRemaining);
-        
         this.audioThreadLock = false;
-
     }
 
-    beforeRun(){
+    beforeRun() {
         //add any overriding logic here before the emulator starts
     }
 
-     afterRun(){
+    afterRun() {
         //add any overriding logic here after the emulator starts
     }
-    
-    WriteConfigFile()
-    {
+
+    WriteConfigFile() {
         let configString = "";
 
-        //gamepad
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Up + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Down + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Left + "\r\n";
@@ -460,7 +371,6 @@ class MyClass {
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_CUP + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Joy_Mapping_Action_CDOWN + "\r\n";
 
-        //keyboard
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Left + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Right + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Up + "\r\n";
@@ -481,57 +391,36 @@ class MyClass {
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_Analog_Left + "\r\n";
         configString += this.rivetsData.inputController.KeyMappings.Mapping_Action_Analog_Right + "\r\n";
 
-        //load save files
         if (this.eepData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
         if (this.sraData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
         if (this.flaData == null) configString += "0" + "\r\n"; else configString += "1" + "\r\n";
 
-        //show FPS
         if (this.rivetsData.showFPS) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-
-        //swap sticks
         if (this.rivetsData.swapSticks) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-
-        //disable audio sync
         if (this.rivetsData.disableAudioSync) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-
-        //invert player Y axis
         if (this.rivetsData.invert2P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
         if (this.rivetsData.invert3P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
         if (this.rivetsData.invert4P) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
 
-        //mobile mode
         if (this.rivetsData.settingMobile == 'ForceMobile') this.mobileMode = true;
         if (this.rivetsData.settingMobile == 'ForceDesktop') this.mobileMode = false;
         if (this.mobileMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-    
-        //angrylion software renderer
+
         if (this.rivetsData.forceAngry) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-
-        //mouse mode
         if (this.rivetsData.mouseMode) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-
-         //use vbo
         if (this.iosMode) configString += "1" + "\r\n"; else configString += "1" + "\r\n";
-
-        //rice plugin
         if (this.rivetsData.ricePlugin) configString += "1" + "\r\n"; else configString += "0" + "\r\n";
-        
-        FS.writeFile('config.txt',configString);
 
-        //write cheats
+        FS.writeFile('config.txt', configString);
+
         let cheatString = '';
         this.rivetsData.cheats.forEach(cheat => {
-            if (cheat.active)
-            {
+            if (cheat.active) {
                 cheatString += cheat.address + "\r\n" + cheat.value + "\r\n";
             }
         });
-        
-        FS.writeFile('cheat.txt',cheatString);
-
+        FS.writeFile('cheat.txt', cheatString);
     }
-
 
     uploadBrowse() {
         this.initAudio();
@@ -553,58 +442,42 @@ class MyClass {
         console.log(file);
         myClass.rivetsData.eepName = 'File Ready';
         var reader = new FileReader();
-        reader.onprogress = function (e) {
-            console.log('loaded: ' + e.loaded);
-        };
+        reader.onprogress = function (e) { console.log('loaded: ' + e.loaded); };
         reader.onload = function (e) {
             console.log('finished loading');
             var byteArray = new Uint8Array(this.result);
             myClass.eepData = byteArray;
-
-            FS.writeFile(
-                "game.eep", // file name
-                byteArray
-            );
+            FS.writeFile("game.eep", byteArray);
         }
         reader.readAsArrayBuffer(file);
     }
+
     uploadSra(event) {
         var file = event.currentTarget.files[0];
         console.log(file);
         myClass.rivetsData.sraName = 'File Ready';
         var reader = new FileReader();
-        reader.onprogress = function (e) {
-            console.log('loaded: ' + e.loaded);
-        };
+        reader.onprogress = function (e) { console.log('loaded: ' + e.loaded); };
         reader.onload = function (e) {
             console.log('finished loading');
             var byteArray = new Uint8Array(this.result);
             myClass.sraData = byteArray;
-
-            FS.writeFile(
-                "game.sra", // file name
-                byteArray
-            );
+            FS.writeFile("game.sra", byteArray);
         }
         reader.readAsArrayBuffer(file);
     }
+
     uploadFla(event) {
         var file = event.currentTarget.files[0];
         console.log(file);
         myClass.rivetsData.flaName = 'File Ready';
         var reader = new FileReader();
-        reader.onprogress = function (e) {
-            console.log('loaded: ' + e.loaded);
-        };
+        reader.onprogress = function (e) { console.log('loaded: ' + e.loaded); };
         reader.onload = function (e) {
             console.log('finished loading');
             var byteArray = new Uint8Array(this.result);
             myClass.flaData = byteArray;
-
-            FS.writeFile(
-                "game.fla", // file name
-                byteArray
-            );
+            FS.writeFile("game.fla", byteArray);
         }
         reader.readAsArrayBuffer(file);
     }
@@ -614,9 +487,7 @@ class MyClass {
         myClass.rom_name = file.name;
         console.log(file);
         var reader = new FileReader();
-        reader.onprogress = function (e) {
-            console.log('loaded: ' + e.loaded);
-        };
+        reader.onprogress = function (e) { console.log('loaded: ' + e.loaded); };
         reader.onload = function (e) {
             console.log('finished loading');
             var byteArray = new Uint8Array(this.result);
@@ -626,14 +497,13 @@ class MyClass {
     }
 
     resizeCanvas() {
-        let width = document.documentElement.clientWidth; //window.innerWidth;
-        let height = document.documentElement.clientHeight;// window.innerHeight;
+        let width = document.documentElement.clientWidth;
+        let height = document.documentElement.clientHeight;
         $('#canvas').width(width);
         $('#canvas').height(height);
     }
 
     zoomOut() {
-
         this.canvasSize -= 50;
         localStorage.setItem('n64wasm-size', this.canvasSize.toString());
         this.resizeCanvas();
@@ -645,17 +515,13 @@ class MyClass {
         this.resizeCanvas();
     }
 
-
-    async initModule(){
+    async initModule() {
         console.log('module initialized');
         myClass.rivetsData.moduleInitializing = false;
-        //myClass.loadFiles();
     }
 
-    //not being used currently
-    async loadFiles(){
+    async loadFiles() {
         let files = ["shader_vert.hlsl", "shader_frag.hlsl"];
-
         for (let i = 0; i < files.length; i++) {
             let file = files[i];
             let responseText = await $.ajax({
@@ -664,46 +530,48 @@ class MyClass {
                     xhr.overrideMimeType("text/plain; charset=x-user-defined");
                 }
             });
-            console.log(file,responseText.length);
-            FS.writeFile(
-                file, // file name
-                responseText
-            );
+            console.log(file, responseText.length);
+            FS.writeFile(file, responseText);
         }
     }
 
-    //DRAG AND DROP ROM
-    setupDragDropRom(){
+    // =============================================
+    // FIX: Added click handler so clicking the drop
+    // zone opens the file picker, same as the button.
+    // =============================================
+    setupDragDropRom() {
         let dropArea = document.getElementById('dropArea');
+
+        // Click anywhere on the drop zone to open file picker
+        dropArea.addEventListener('click', () => this.uploadBrowse(), false);
 
         dropArea.addEventListener('dragenter', this.preventDefaults, false);
         dropArea.addEventListener('dragover', this.preventDefaults, false);
         dropArea.addEventListener('dragleave', this.preventDefaults, false);
         dropArea.addEventListener('drop', this.preventDefaults, false);
-        
+
         dropArea.addEventListener('dragenter', this.dragDropHighlight, false);
         dropArea.addEventListener('dragover', this.dragDropHighlight, false);
         dropArea.addEventListener('dragleave', this.dragDropUnHighlight, false);
         dropArea.addEventListener('drop', this.dragDropUnHighlight, false);
 
         dropArea.addEventListener('drop', this.handleDrop, false);
-
     }
 
-    preventDefaults(e){
+    preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
 
-    dragDropHighlight(e){
-        $('#dropArea').css({"background-color": "lightblue"});
+    dragDropHighlight(e) {
+        $('#dropArea').css({ "background-color": "lightblue" });
     }
 
-    dragDropUnHighlight(e){
-        $('#dropArea').css({"background-color": "inherit"});
+    dragDropUnHighlight(e) {
+        $('#dropArea').css({ "background-color": "inherit" });
     }
 
-    handleDrop(e){
+    handleDrop(e) {
         let dt = e.dataTransfer;
         let files = dt.files;
 
@@ -711,39 +579,32 @@ class MyClass {
         myClass.rom_name = file.name;
         console.log(file);
         var reader = new FileReader();
-        reader.onprogress = function (e) {
-            console.log('loaded: ' + e.loaded);
-        };
+        reader.onprogress = function (e) { console.log('loaded: ' + e.loaded); };
         reader.onload = function (e) {
             console.log('finished loading');
             var byteArray = new Uint8Array(this.result);
             myClass.LoadEmulator(byteArray);
         }
         reader.readAsArrayBuffer(file);
-
     }
 
-    extractRomName(name){
-        if (name.includes('/'))
-        {
-            name = name.substr(name.lastIndexOf('/')+1);
+    extractRomName(name) {
+        if (name.includes('/')) {
+            name = name.substr(name.lastIndexOf('/') + 1);
         }
-
         return name;
     }
 
-    loadRomAndSavestate(){
+    loadRomAndSavestate() {
         let selector = document.getElementById('romselect');
         let saveToLoad = document.getElementById('savestateSelect')["value"];
 
-        for (let i=0;i<selector.options.length;i++)
-        {
+        for (let i = 0; i < selector.options.length; i++) {
             let romurl = selector.options[i].value;
             let romname = this.extractRomName(romurl);
 
-            if (saveToLoad==romname + '.n64wasm')
-            {
-                selector.selectedIndex = i; 
+            if (saveToLoad == romname + '.n64wasm') {
+                selector.selectedIndex = i;
                 this.loadSavestateAfterBoot = true;
             }
         }
@@ -752,11 +613,9 @@ class MyClass {
     }
 
     async loadRom() {
-        //get rom url
         let romurl = document.getElementById('romselect')["value"];
         console.log(romurl);
         this.rom_name = this.extractRomName(romurl);
-
         this.load_url(romurl);
     }
 
@@ -770,17 +629,15 @@ class MyClass {
         req.responseType = "arraybuffer";
 
         req.onload = function () {
-            var arrayBuffer = req.response; // Note: not oReq.responseText
-            try{
+            var arrayBuffer = req.response;
+            try {
                 if (arrayBuffer) {
                     var byteArray = new Uint8Array(arrayBuffer);
                     myClass.LoadEmulator(byteArray);
+                } else {
+                    // toastr.error('Error Loading Cloud Save');
                 }
-                else{
-                    //toastr.error('Error Loading Cloud Save');
-                }
-            }
-            catch(error){
+            } catch (error) {
                 console.log(error);
                 toastr.error('Error Loading Save');
             }
@@ -789,22 +646,19 @@ class MyClass {
         req.send();
     }
 
-    
-
-    saveStateLocal(){
+    saveStateLocal() {
         console.log('saveStateLocal');
         this.rivetsData.noLocalSave = false;
         Module._neil_serialize();
     }
 
-    loadStateLocal(){
+    loadStateLocal() {
         console.log('loadStateLocal');
         myClass.loadFromDatabase();
     }
 
     createDB() {
-
-        if (window["indexedDB"]==undefined){
+        if (window["indexedDB"] == undefined) {
             console.log('indexedDB not available');
             return;
         }
@@ -823,38 +677,31 @@ class MyClass {
             var db = ev.target.result;
             var romStore = db.transaction("N64WASMSTATES", "readwrite").objectStore("N64WASMSTATES");
             try {
-                //rewrote using cursor instead of getAllKeys
-                //for compatibility with MS EDGE
                 romStore.openCursor().onsuccess = function (ev) {
                     var cursor = ev.target.result;
                     if (cursor) {
                         let rom = cursor.key.toString();
                         myClass.dblist.push(rom);
                         cursor.continue();
-                    }
-                    else {
+                    } else {
                         if (myClass.dblist.length > 0) {
-                            //TODO show savestates grid
+                            // TODO show savestates grid
                         }
                     }
                 }
-
             } catch (error) {
                 console.log('error reading keys');
                 console.log(error);
             }
-
         }
-
     }
 
     findInDatabase() {
-
-        if (!window["indexedDB"]==undefined){
+        if (!window["indexedDB"] == undefined) {
             console.log('indexedDB not available');
             return;
         }
-        
+
         var request = indexedDB.open('N64WASMDB');
         request.onsuccess = function (ev) {
             var db = ev.target.result;
@@ -864,14 +711,12 @@ class MyClass {
                     var cursor = ev.target.result;
                     if (cursor) {
                         let rom = cursor.key.toString();
-                        if (myClass.rom_name == rom)
-                        {
+                        if (myClass.rom_name == rom) {
                             myClass.rivetsData.noLocalSave = false;
                         }
                         cursor.continue();
                     }
                 }
-
             } catch (error) {
                 console.log('error reading keys');
                 console.log(error);
@@ -880,64 +725,49 @@ class MyClass {
     }
 
     async LoadSram() {
-
         return new Promise(function (resolve, reject) {
             var request = indexedDB.open('N64WASMDB');
-            try
-            {
+            try {
                 request.onsuccess = function (ev) {
                     var db = ev.target.result;
                     var romStore = db.transaction("N64WASMSTATES", "readwrite").objectStore("N64WASMSTATES");
                     var rom = romStore.get(myClass.rom_name + '.sram');
                     rom.onsuccess = function (event) {
-                        if (rom.result)
-                        {
-                            let byteArray = rom.result; //Uint8Array
+                        if (rom.result) {
+                            let byteArray = rom.result;
                             FS.writeFile('/game.savememory', byteArray);
                         }
                         resolve();
                     };
-                    rom.onerror = function (event) {
-                        reject();
-                    }
+                    rom.onerror = function (event) { reject(); }
                 }
-                request.onerror = function (ev) {
-                    reject();
-                }
-            }catch(error){
-                reject();
-            }
+                request.onerror = function (ev) { reject(); }
+            } catch (error) { reject(); }
         });
-
     }
 
     SaveSram() {
-
-        let data = FS.readFile('/game.savememory'); //this is a Uint8Array
+        let data = FS.readFile('/game.savememory');
 
         var request = indexedDB.open('N64WASMDB');
         request.onsuccess = function (ev) {
             var db = ev.target.result;
             var romStore = db.transaction("N64WASMSTATES", "readwrite").objectStore("N64WASMSTATES");
             var addRequest = romStore.put(data, myClass.rom_name + '.sram');
-            addRequest.onsuccess = function (event) {
-                console.log('sram added');
-            };
+            addRequest.onsuccess = function (event) { console.log('sram added'); };
             addRequest.onerror = function (event) {
                 console.log('error adding sram');
                 console.log(event);
             };
         }
-
     }
 
     saveToDatabase(data) {
-
-        if (!window["indexedDB"]==undefined){
+        if (!window["indexedDB"] == undefined) {
             console.log('indexedDB not available');
             return;
         }
-        
+
         console.log('save to database called: ', data.length);
 
         var request = indexedDB.open('N64WASMDB');
@@ -957,160 +787,125 @@ class MyClass {
         }
     }
 
-
     loadFromDatabase() {
-
         var request = indexedDB.open('N64WASMDB');
         request.onsuccess = function (ev) {
             var db = ev.target.result;
             var romStore = db.transaction("N64WASMSTATES", "readwrite").objectStore("N64WASMSTATES");
             var rom = romStore.get(myClass.rom_name);
             rom.onsuccess = function (event) {
-                let byteArray = rom.result; //Uint8Array
-                FS.writeFile('/savestate.gz',byteArray);
+                let byteArray = rom.result;
+                FS.writeFile('/savestate.gz', byteArray);
                 Module._neil_unserialize();
-
             };
             rom.onerror = function (event) {
                 toastr.error('error getting rom from store');
             }
         }
         request.onerror = function (ev) {
-            toastr.error('error loading from db')
+            toastr.error('error loading from db');
         }
-
     }
 
-
     clearDatabase() {
-
         var request = indexedDB.deleteDatabase('N64WASMDB');
         request.onerror = function (event) {
             console.log("Error deleting database.");
             toastr.error("Error deleting database");
         };
-
         request.onsuccess = function (event) {
             console.log("Database deleted successfully");
             toastr.error("Database deleted successfully");
         };
-
     }
-    
 
-    exportEep(){
-        Module._neil_export_eep();
-    }
-    ExportEepEvent()
-    {
+    exportEep() { Module._neil_export_eep(); }
+    ExportEepEvent() {
         console.log('js eep event');
-
-        let filearray = FS.readFile("/game.eep");   
-        var file = new File([filearray], "game.eep", {type: "text/plain; charset=x-user-defined"});
+        let filearray = FS.readFile("/game.eep");
+        var file = new File([filearray], "game.eep", { type: "text/plain; charset=x-user-defined" });
         saveAs(file);
     }
-    exportSra(){
-        Module._neil_export_sra();
-    }
-    ExportSraEvent()
-    {
+
+    exportSra() { Module._neil_export_sra(); }
+    ExportSraEvent() {
         console.log('js sra event');
-
-        let filearray = FS.readFile("/game.sra");   
-        var file = new File([filearray], "game.sra", {type: "text/plain; charset=x-user-defined"});
+        let filearray = FS.readFile("/game.sra");
+        var file = new File([filearray], "game.sra", { type: "text/plain; charset=x-user-defined" });
         saveAs(file);
     }
-    exportFla(){
-        Module._neil_export_fla();
-    }
-    ExportFlaEvent()
-    {
+
+    exportFla() { Module._neil_export_fla(); }
+    ExportFlaEvent() {
         console.log('js fla event');
-
-        let filearray = FS.readFile("/game.fla");   
-        var file = new File([filearray], "game.fla", {type: "text/plain; charset=x-user-defined"});
+        let filearray = FS.readFile("/game.fla");
+        var file = new File([filearray], "game.fla", { type: "text/plain; charset=x-user-defined" });
         saveAs(file);
     }
 
-    //when it returns from emscripten
-    SaveStateEvent()
-    {
+    SaveStateEvent() {
         myClass.hideMobileMenu();
-
         console.log('js savestate event');
-        let compressed = FS.readFile('/savestate.gz'); //this is a Uint8Array
+        let compressed = FS.readFile('/savestate.gz');
 
-        //use local db
-        if (!myClass.rivetsData.loggedIn)
-        {
+        if (!myClass.rivetsData.loggedIn) {
             myClass.saveToDatabase(compressed);
             return;
         }
 
-
         var xhr = new XMLHttpRequest;
-        xhr.open("POST", this.rivetsData.settings.CLOUDSAVEURL + "/SendStaveState?name=" + this.rom_name + '.n64wasm' + 
+        xhr.open("POST", this.rivetsData.settings.CLOUDSAVEURL + "/SendStaveState?name=" + this.rom_name + '.n64wasm' +
             "&password=" + this.rivetsData.password + "&emulator=n64", true);
         xhr.send(compressed);
 
-        xhr.onreadystatechange = function() {
-            try{
+        xhr.onreadystatechange = function () {
+            try {
                 if (xhr.readyState === 4) {
                     let result = xhr.response;
-                    if (result=="\"Success\""){
+                    if (result == "\"Success\"") {
                         myClass.rivetsData.noCloudSave = false;
                         toastr.info("Cloud State Saved");
                         myClass.showToast("Cloud State Saved");
-                    }else{
+                    } else {
                         toastr.error('Error Saving Cloud Save');
                     }
                 }
-            }
-            catch(error){
+            } catch (error) {
                 console.log(error);
                 toastr.error('Error Loading Cloud Save');
             }
-            
         }
     }
 
-    saveCloud(){
-        Module._neil_serialize();
-    }
+    saveCloud() { Module._neil_serialize(); }
 
-    loadCloud(){
-
+    loadCloud() {
         myClass.hideMobileMenu();
 
-        //use local db
-        if (!myClass.rivetsData.loggedIn)
-        {
+        if (!myClass.rivetsData.loggedIn) {
             myClass.loadFromDatabase();
             return;
         }
 
         var oReq = new XMLHttpRequest();
         oReq.open("GET", this.rivetsData.settings.CLOUDSAVEURL + "/LoadStaveState?name=" + this.rom_name + '.n64wasm' +
-         "&password=" + this.rivetsData.password, true);
+            "&password=" + this.rivetsData.password, true);
         oReq.responseType = "arraybuffer";
 
         oReq.onload = function (oEvent) {
-            var arrayBuffer = oReq.response; // Note: not oReq.responseText
-            try{
+            var arrayBuffer = oReq.response;
+            try {
                 if (arrayBuffer) {
                     var byteArray = new Uint8Array(arrayBuffer);
-                    FS.writeFile('/savestate.gz',byteArray);
+                    FS.writeFile('/savestate.gz', byteArray);
                     Module._neil_unserialize();
-                }
-                else{
+                } else {
                     toastr.error('Error Loading Cloud Save');
                 }
-            }
-            catch(error){
+            } catch (error) {
                 console.log(error);
                 toastr.error('Error Loading Cloud Save');
             }
-            
         };
 
         oReq.send(null);
@@ -1119,24 +914,19 @@ class MyClass {
     fullscreen() {
         try {
             let el = document.getElementById('canvas');
-
             if (el.webkitRequestFullScreen) {
                 el.webkitRequestFullScreen();
-            }
-            else {
+            } else {
                 el.mozRequestFullScreen();
             }
-        } catch (error) 
-        { 
+        } catch (error) {
             console.log('full screen failed');
         }
     }
 
-    newRom(){
-        location.reload();
-    }
+    newRom() { location.reload(); }
 
-    configureEmulator(){
+    configureEmulator() {
         let size = localStorage.getItem('n64wasm-size');
         if (size) {
             console.log('size found');
@@ -1144,8 +934,7 @@ class MyClass {
             this.canvasSize = sizeNum;
         }
 
-        if (this.mobileMode)
-        {
+        if (this.mobileMode) {
             this.setupMobileMode();
         }
 
@@ -1153,31 +942,21 @@ class MyClass {
 
         if (this.rivetsData.password)
             this.loginSilent();
-
-        // if (this.rivetsData.mouseMode)
-        // {
-        //     document.getElementById('canvasDiv').addEventListener("click", this.canvasClick.bind(this));
-        // }
     }
 
-    canvasClick(){
+    canvasClick() {
         let isPointerCurrentlyLocked = document.pointerLockElement;
         if (!isPointerCurrentlyLocked)
             this.captureMouse();
     }
 
-    captureMouse(){
+    captureMouse() {
         let canvas = document.getElementById('canvas');
-
-        //mouse capture
-        canvas.requestPointerLock = canvas.requestPointerLock ||
-        canvas.mozRequestPointerLock;
-
-        canvas.requestPointerLock()
+        canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
+        canvas.requestPointerLock();
     }
 
     setupMobileMode() {
-
         this.canvasSize = window.innerWidth;
         console.log('canvas size', this.canvasSize);
 
@@ -1187,77 +966,63 @@ class MyClass {
 
         this.rivetsData.inputController.setupMobileControls('divTouchSurface');
 
-        // document.getElementById('body').style['background-color'] = 'white';
-
         $("#mobileDiv").show();
         $("#maindiv").hide();
         $('#canvas').appendTo("#mobileCanvas");
 
         document.getElementById('maindiv').classList.remove('container');
-
-        //fixes the small gap between canvas and mobile buttons
         document.getElementById('canvas').style.display = 'block';
 
-        //scroll back to top
         try {
-            document.body.scrollTop = 0; // For Safari
-            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         } catch (error) { }
     }
 
     hideMobileMenu() {
-        if (this.mobileMode)
-        {
+        if (this.mobileMode) {
             $("#mobileButtons").hide();
             $('#menuDiv').show();
         }
     }
 
-    setFromLocalStorage(localStorageName, rivetsName){
-        if (localStorage.getItem(localStorageName))
-        {
-            if (localStorage.getItem(localStorageName)=="true")
+    setFromLocalStorage(localStorageName, rivetsName) {
+        if (localStorage.getItem(localStorageName)) {
+            if (localStorage.getItem(localStorageName) == "true")
                 this.rivetsData[rivetsName] = true;
-            else if (localStorage.getItem(localStorageName)=="false")
+            else if (localStorage.getItem(localStorageName) == "false")
                 this.rivetsData[rivetsName] = false;
             else
                 this.rivetsData[rivetsName] = localStorage.getItem(localStorageName);
         }
     }
 
-    setToLocalStorage(localStorageName, rivetsName){
-
-        if (typeof(myApp.rivetsData[rivetsName]) == 'boolean')
-        {
+    setToLocalStorage(localStorageName, rivetsName) {
+        if (typeof (myApp.rivetsData[rivetsName]) == 'boolean') {
             if (this.rivetsData[rivetsName])
                 localStorage.setItem(localStorageName, 'true');
-            else        
+            else
                 localStorage.setItem(localStorageName, 'false');
-        }
-        else
-        {
+        } else {
             localStorage.setItem(localStorageName, this.rivetsData[rivetsName]);
         }
-
     }
 
-    retrieveSettings(){
+    retrieveSettings() {
         this.loadCheats();
-        this.setFromLocalStorage('n64wasm-showfps','showFPS');
-        this.setFromLocalStorage('n64wasm-disableaudiosyncnew','disableAudioSync');
-        this.setFromLocalStorage('n64wasm-swapSticks','swapSticks');
-        this.setFromLocalStorage('n64wasm-invert2P','invert2P');
-        this.setFromLocalStorage('n64wasm-invert3P','invert3P');
-        this.setFromLocalStorage('n64wasm-invert4P','invert4P');
-        this.setFromLocalStorage('n64wasm-settingMobile','settingMobile');
-        this.setFromLocalStorage('n64wasm-mouseMode','mouseMode');
-        this.setFromLocalStorage('n64wasm-forceAngry','forceAngry');
-        this.setFromLocalStorage('n64wasm-ricePlugin','ricePlugin');
-
+        this.setFromLocalStorage('n64wasm-showfps', 'showFPS');
+        this.setFromLocalStorage('n64wasm-disableaudiosyncnew', 'disableAudioSync');
+        this.setFromLocalStorage('n64wasm-swapSticks', 'swapSticks');
+        this.setFromLocalStorage('n64wasm-invert2P', 'invert2P');
+        this.setFromLocalStorage('n64wasm-invert3P', 'invert3P');
+        this.setFromLocalStorage('n64wasm-invert4P', 'invert4P');
+        this.setFromLocalStorage('n64wasm-settingMobile', 'settingMobile');
+        this.setFromLocalStorage('n64wasm-mouseMode', 'mouseMode');
+        this.setFromLocalStorage('n64wasm-forceAngry', 'forceAngry');
+        this.setFromLocalStorage('n64wasm-ricePlugin', 'ricePlugin');
     }
 
-    saveOptions(){
-
+    saveOptions() {
         this.rivetsData.showFPS = this.rivetsData.showFPSTemp;
         this.rivetsData.swapSticks = this.rivetsData.swapSticksTemp;
         this.rivetsData.mouseMode = this.rivetsData.mouseModeTemp;
@@ -1269,22 +1034,19 @@ class MyClass {
         this.rivetsData.forceAngry = this.rivetsData.pluginTemp == 'angry';
         this.rivetsData.ricePlugin = this.rivetsData.pluginTemp == 'rice';
 
-        this.setToLocalStorage('n64wasm-showfps','showFPS');
-        this.setToLocalStorage('n64wasm-disableaudiosyncnew','disableAudioSync');
-        this.setToLocalStorage('n64wasm-swapSticks','swapSticks');
-        this.setToLocalStorage('n64wasm-mouseMode','mouseMode');
-        this.setToLocalStorage('n64wasm-invert2P','invert2P');
-        this.setToLocalStorage('n64wasm-invert3P','invert3P');
-        this.setToLocalStorage('n64wasm-invert4P','invert4P');
-        this.setToLocalStorage('n64wasm-settingMobile','settingMobile');
-        this.setToLocalStorage('n64wasm-forceAngry','forceAngry');
-        this.setToLocalStorage('n64wasm-ricePlugin','ricePlugin');
-        
+        this.setToLocalStorage('n64wasm-showfps', 'showFPS');
+        this.setToLocalStorage('n64wasm-disableaudiosyncnew', 'disableAudioSync');
+        this.setToLocalStorage('n64wasm-swapSticks', 'swapSticks');
+        this.setToLocalStorage('n64wasm-mouseMode', 'mouseMode');
+        this.setToLocalStorage('n64wasm-invert2P', 'invert2P');
+        this.setToLocalStorage('n64wasm-invert3P', 'invert3P');
+        this.setToLocalStorage('n64wasm-invert4P', 'invert4P');
+        this.setToLocalStorage('n64wasm-settingMobile', 'settingMobile');
+        this.setToLocalStorage('n64wasm-forceAngry', 'forceAngry');
+        this.setToLocalStorage('n64wasm-ricePlugin', 'ricePlugin');
     }
 
-
     showRemapModal() {
-
         this.rivetsData.remapPlayer1 = true;
         this.rivetsData.remapOptions = false;
         this.rivetsData.remapGameshark = false;
@@ -1301,16 +1063,12 @@ class MyClass {
         if (this.rivetsData.forceAngry) this.rivetsData.pluginTemp = 'angry';
         if (this.rivetsData.ricePlugin) this.rivetsData.pluginTemp = 'rice';
 
-        //start input loop
-        if (!this.rivetsData.inputLoopStarted)
-        {
+        if (!this.rivetsData.inputLoopStarted) {
             this.rivetsData.inputLoopStarted = true;
             this.rivetsData.inputController.setupGamePad();
-            setTimeout(() => {
-                myClass.inputLoop();
-            }, 100);
+            setTimeout(() => { myClass.inputLoop(); }, 100);
         }
-        
+
         if (this.rivetsData.inputController.Gamepad_Process_Axis)
             this.rivetsData.chkUseJoypad = true;
         this.rivetsData.remappings = JSON.parse(JSON.stringify(this.rivetsData.inputController.KeyMappings));
@@ -1318,67 +1076,58 @@ class MyClass {
         $("#buttonsModal").modal();
     }
 
-    addCheat(){
+    addCheat() {
         let cheat = {
             name: this.rivetsData.cheatName.trim(),
             address: this.rivetsData.cheatAddress.trim(),
             value: this.rivetsData.cheatValue.trim(),
             active: true
         }
-
         this.rivetsData.cheats.push(cheat);
         this.rivetsData.cheatName = '';
         this.rivetsData.cheatAddress = '';
         this.rivetsData.cheatValue = '';
-
         this.saveCheats();
     }
 
-    loadCheats(){
-        try
-        {
+    loadCheats() {
+        try {
             let cheats = JSON.parse(localStorage.getItem('n64wasm-cheats'));
-            for(let i = 0; i < cheats.length; i++)
-            {
+            for (let i = 0; i < cheats.length; i++) {
                 let cheat = cheats[i];
-                if (cheat.name && cheat.address && cheat.value)
-                {
+                if (cheat.name && cheat.address && cheat.value) {
                     this.rivetsData.cheats.push(cheat);
                 }
             }
-        }catch(err){}
+        } catch (err) { }
     }
 
-    saveCheats(){
-        localStorage.setItem('n64wasm-cheats',JSON.stringify(this.rivetsData.cheats));
+    saveCheats() {
+        localStorage.setItem('n64wasm-cheats', JSON.stringify(this.rivetsData.cheats));
     }
 
-    deleteCheat(cheat){
-        this.rivetsData.cheats = this.rivetsData.cheats.filter((a)=>{ return a.name != cheat.name; });
+    deleteCheat(cheat) {
+        this.rivetsData.cheats = this.rivetsData.cheats.filter((a) => { return a.name != cheat.name; });
         this.saveCheats();
     }
 
-    swapRemap(id){
-        if (id=='options')
-        {
+    swapRemap(id) {
+        if (id == 'options') {
             this.rivetsData.remapPlayer1 = false;
             this.rivetsData.remapOptions = true;
             this.rivetsData.remapGameshark = false;
         }
-        if (id=='player1')
-        {
+        if (id == 'player1') {
             this.rivetsData.remapPlayer1 = true;
             this.rivetsData.remapOptions = false;
             this.rivetsData.remapGameshark = false;
         }
-        if (id=='gameshark')
-        {
+        if (id == 'gameshark') {
             this.rivetsData.remapPlayer1 = false;
             this.rivetsData.remapOptions = false;
             this.rivetsData.remapGameshark = true;
         }
     }
-    
 
     saveRemap() {
         if (this.rivetsData.chkUseJoypad)
@@ -1394,14 +1143,12 @@ class MyClass {
     }
 
     btnRemapKey(keynum) {
-        console.log(this);
         this.rivetsData.currKey = keynum;
         this.rivetsData.remapMode = 'Key';
         this.readyRemap();
     }
 
     btnRemapJoy(joynum) {
-
         this.rivetsData.currJoy = joynum;
         this.rivetsData.remapMode = 'Button';
         this.readyRemap();
@@ -1414,7 +1161,7 @@ class MyClass {
         this.rivetsData.inputController.Remap_Check = true;
     }
 
-    restoreDefaultKeymappings(){
+    restoreDefaultKeymappings() {
         this.rivetsData.remappings = this.rivetsData.inputController.defaultKeymappings();
         this.rivetsData.showFPSTemp = true;
         this.rivetsData.swapSticksTemp = false;
@@ -1430,8 +1177,6 @@ class MyClass {
     remapPressed() {
         if (this.rivetsData.remapMode == 'Key') {
             var keyLast = this.rivetsData.inputController.Key_Last;
-
-            //player 1
             if (this.rivetsData.currKey == 1) this.rivetsData.remappings.Mapping_Up = keyLast;
             if (this.rivetsData.currKey == 2) this.rivetsData.remappings.Mapping_Down = keyLast;
             if (this.rivetsData.currKey == 3) this.rivetsData.remappings.Mapping_Left = keyLast;
@@ -1451,7 +1196,6 @@ class MyClass {
             if (this.rivetsData.currKey == 18) this.rivetsData.remappings.Mapping_Action_Analog_Down = keyLast;
             if (this.rivetsData.currKey == 19) this.rivetsData.remappings.Mapping_Action_Analog_Left = keyLast;
             if (this.rivetsData.currKey == 20) this.rivetsData.remappings.Mapping_Action_Analog_Right = keyLast;
-
         }
         if (this.rivetsData.remapMode == 'Button') {
             var joyLast = this.rivetsData.inputController.Joy_Last;
@@ -1471,7 +1215,6 @@ class MyClass {
     }
 
     async setupLogin() {
-        //prevent submit on enter 
         $('#txtPassword').bind("keypress", function (e) {
             if (e.keyCode == 13) {
                 e.preventDefault();
@@ -1481,69 +1224,61 @@ class MyClass {
         });
 
         let pw = localStorage.getItem('n64wasm-password');
-        if (pw==null)
+        if (pw == null)
             this.rivetsData.password = '';
         else
             this.rivetsData.password = pw;
 
-        if (this.rivetsData.password){
+        if (this.rivetsData.password) {
             await this.loginSilent();
         }
-            
     }
 
-    loginModal(){
+    loginModal() {
         $("#loginModal").modal();
         this.loginModalOpened = true;
-        setTimeout(() => {
-            //focus on textbox
-            $("#txtPassword").focus();
-        }, 500);
+        setTimeout(() => { $("#txtPassword").focus(); }, 500);
     }
 
-    logout(){
+    logout() {
         this.rivetsData.loggedIn = false;
         this.rivetsData.password = '';
         localStorage.setItem('n64wasm-password', this.rivetsData.password);
     }
 
-    async loginSubmit(){
+    async loginSubmit() {
         $('#loginModal').modal('hide');
         this.loginModalOpened = false;
         let result = await this.loginToServer();
-        if (result=='Success'){
+        if (result == 'Success') {
             toastr.success('Logged In');
             localStorage.setItem('n64wasm-password', this.rivetsData.password);
             await this.getSaveStates();
-            this.postLoginProcess();            
-        }
-        else{
+            this.postLoginProcess();
+        } else {
             toastr.error('Login Failed');
             this.rivetsData.password = '';
             localStorage.setItem('n64wasm-password', '');
         }
     }
 
-    async loginSilent(){
-        if (!this.rivetsData.showLogin)
-            return;
-        
+    async loginSilent() {
+        if (!this.rivetsData.showLogin) return;
         let result = await this.loginToServer();
-        if (result=='Success'){
+        if (result == 'Success') {
             await this.getSaveStates();
             this.postLoginProcess();
         }
     }
 
-    postLoginProcess(){
-        //filter by .n64wasm extension and sort by date
-        this.rivetsData.n64SaveStates = this.allSaveStates.filter((state)=>{
-            return state.Name.endsWith('.n64wasm')
+    postLoginProcess() {
+        this.rivetsData.n64SaveStates = this.allSaveStates.filter((state) => {
+            return state.Name.endsWith('.n64wasm');
         });
         this.rivetsData.n64SaveStates.forEach(state => {
             state.Date = this.convertCSharpDateTime(state.Date);
         });
-        this.rivetsData.n64SaveStates.sort((a,b)=>{ return b.Date.getTime() - a.Date.getTime() });
+        this.rivetsData.n64SaveStates.sort((a, b) => { return b.Date.getTime() - a.Date.getTime(); });
         this.rivetsData.loggedIn = true;
     }
 
@@ -1553,70 +1288,66 @@ class MyClass {
         let timeString = initialDate.substr(initialDate.indexOf("T") + 1);
         let dateComponents = dateString.split('-');
         let timeComponents = timeString.split(':');
-        let myDate = null;
-
-        myDate = new Date(parseInt(dateComponents[0]), parseInt(dateComponents[1]) - 1, parseInt(dateComponents[2]),
-            parseInt(timeComponents[0]), parseInt(timeComponents[1]), parseInt(timeComponents[2]));
-        return myDate;
+        return new Date(
+            parseInt(dateComponents[0]),
+            parseInt(dateComponents[1]) - 1,
+            parseInt(dateComponents[2]),
+            parseInt(timeComponents[0]),
+            parseInt(timeComponents[1]),
+            parseInt(timeComponents[2])
+        );
     }
 
-    async loginToServer(){
+    async loginToServer() {
         let result = await $.get(this.rivetsData.settings.CLOUDSAVEURL + '/Login?password=' + this.rivetsData.password);
         console.log('login result: ' + result);
         return result;
     }
 
-    async getSaveStates(){
+    async getSaveStates() {
         let result = await $.get(this.rivetsData.settings.CLOUDSAVEURL + '/GetSaveStates?password=' + this.rivetsData.password);
         console.log('getSaveStates result: ', result);
         this.allSaveStates = result;
         result.forEach(element => {
-            if (element.Name==this.rom_name + ".n64wasm")
+            if (element.Name == this.rom_name + ".n64wasm")
                 this.rivetsData.noCloudSave = false;
         });
         return result;
     }
 
-    reset(){
-        Module._neil_reset();
+    reset() { Module._neil_reset(); }
+
+    localCallback() { }
+
+    startRumble(controllerNum) {
+        try {
+            let gamepad = navigator.getGamepads()[controllerNum];
+            gamepad.vibrationActuator.playEffect("dual-rumble", {
+                startDelay: 0,
+                duration: 200,
+                weakMagnitude: 1.0,
+                strongMagnitude: 1.0,
+            });
+        } catch (e) { }
     }
 
-    localCallback(){
+    stopRumble(controllerNum) {
+        try {
+            let gamepad = navigator.getGamepads()[controllerNum];
+            gamepad.vibrationActuator.playEffect("dual-rumble", {
+                startDelay: 0,
+                duration: 0,
+                weakMagnitude: 0,
+                strongMagnitude: 0,
+            });
+        } catch (e) { }
     }
-    
-
-    //startRumble(controllerNum) {
-     //   try
-     //   {
-       //     let gamepad = navigator.getGamepads()[controllerNum];
-      //      gamepad.vibrationActuator.playEffect("dual-rumble", {
-      //          startDelay: 0,
-      //          duration: 2000,
-      //          weakMagnitude: 1.0,
-      //          strongMagnitude: 1.0,
-     //       });
-     //   }catch(e){}
-  //  }
-  //  stopRumble(controllerNum) {
-  //      try
-   //     {
-     //       let gamepad = navigator.getGamepads()[controllerNum];
-     //       gamepad.vibrationActuator.playEffect("dual-rumble", {
-     //           startDelay: 0,
-     //           duration: 2000,
-      //          weakMagnitude: 0,
-      //          strongMagnitude: 0,
-   //         });
-    //    }catch(e){}
- //   }
-    
 }
-let myClass = new MyClass();
-window["myApp"] = myClass; //so that I can reference from EM_ASM
 
-//add any post loading logic to the window object
-if (window.postLoad)
-{
+let myClass = new MyClass();
+window["myApp"] = myClass;
+
+if (window.postLoad) {
     window.postLoad();
 }
 
@@ -1624,8 +1355,7 @@ window["Module"] = {
     onRuntimeInitialized: myClass.initModule,
     canvas: document.getElementById('canvas'),
     print: (text) => myClass.processPrintStatement(text),
-    // printErr: (text) => myClass.print(text)
-}
+};
 
 var script2 = document.createElement('script');
 script2.src = 'input_controller.js';
