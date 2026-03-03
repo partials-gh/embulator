@@ -177,31 +177,6 @@
             letter-spacing: 2px;
         }
 
-        /* BROWSE BUTTON */
-        #btnBrowse {
-            font-family: 'Press Start 2P', monospace !important;
-            font-size: 9px !important;
-            background: var(--bg2) !important;
-            color: var(--green) !important;
-            border: 2px solid var(--green) !important;
-            border-bottom: 4px solid var(--green-dim) !important;
-            border-right: 4px solid var(--green-dim) !important;
-            box-shadow: 0 0 10px rgba(0,255,65,0.25) !important;
-            padding: 10px 22px !important;
-            text-shadow: 0 0 6px var(--green) !important;
-            letter-spacing: 2px !important;
-        }
-        #btnBrowse:hover {
-            background: var(--green-dark) !important;
-            box-shadow: 0 0 22px rgba(0,255,65,0.5) !important;
-            transform: translate(-1px, -1px) !important;
-        }
-        #btnBrowse:active {
-            transform: translate(2px, 2px) !important;
-            border-bottom-width: 2px !important;
-            border-right-width: 2px !important;
-        }
-
         /* PIXEL DISSOLVE */
         .pixel-particle {
             position: fixed; width: 4px; height: 4px;
@@ -285,16 +260,15 @@
         <div id="lblErrorOuter" style="display:none;"><div id="lblError"></div></div>
     </div>
 
-    <!-- Required by script.js rivets bindings -->
-    <div id="mobileButtons" style="display:none;">
-        <div id="mobileBottomPanel">
-            <div id="mobileStart"  rv-class-buttonhold="data.inputController.MobileStart"></div>
-            <div id="mobileSelect" rv-class-buttonhold="data.inputController.MobileSelect"></div>
-            <div id="mobileB"      rv-class-buttonhold="data.inputController.MobileB"></div>
-            <div id="mobileA"      rv-class-buttonhold="data.inputController.MobileA"></div>
-            <div id="divTouchSurface"><div id="startDiv"></div></div>
-            <div id="menuDiv"></div>
-        </div>
+    <!-- Required by script.js rivets bindings — must all exist at page load -->
+    <div id="mobileButtons" style="display:none;"></div>
+    <div id="mobileBottomPanel" style="display:none;">
+        <div id="mobileStart"   rv-class-buttonhold="data.inputController.MobileStart"></div>
+        <div id="mobileSelect"  rv-class-buttonhold="data.inputController.MobileSelect"></div>
+        <div id="mobileB"       rv-class-buttonhold="data.inputController.MobileB"></div>
+        <div id="mobileA"       rv-class-buttonhold="data.inputController.MobileA"></div>
+        <div id="divTouchSurface"><div id="startDiv"></div></div>
+        <div id="menuDiv"></div>
     </div>
     <div id="mobileDiv" style="display:none;">
         <div id="mobileCanvas"></div>
