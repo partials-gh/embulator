@@ -334,11 +334,30 @@
     <input id="file-upload-sra" type="file">
     <input id="file-upload-fla" type="file">
 
-    <!-- Emulator panels — script.js manages these -->
-    <div id="maindiv"       style="display:none;"></div>
-    <div id="topPanel"      style="display:none;"></div>
-    <div id="bottomPanel"   style="display:none;"></div>
-    <div id="mobileDiv"     style="display:none;"></div>
+    <!-- Emulator panels — script.js/rivets requires these DOM elements to exist -->
+    <div id="maindiv" style="display:none;">
+        <div id="topPanel">
+            <div rv-if="data.beforeEmulatorStarted">
+                <select id="romselect" style="display:none;"><option rv-each-rom="data.romList" rv-value="rom.url">{rom.title}</option></select>
+                <select id="savestateSelect" style="display:none;"><option rv-each-item="data.n64SaveStates" rv-value="item.Name">{item.Name}</option></select>
+                <div id="dbSaveStates" rv-if="data.loggedIn | ev '==true'"></div>
+                <div id="dropAreaOriginal" style="display:none;"></div>
+            </div>
+            <div rv-hide="data.beforeEmulatorStarted"></div>
+        </div>
+        <div id="bottomPanel" rv-hide="data.beforeEmulatorStarted"></div>
+    </div>
+    <div id="mobileDiv"     style="display:none;">
+        <div id="mobileCanvas"></div>
+        <div id="mobileBottomPanel">
+            <div id="mobileStart"  rv-class-buttonhold="data.inputController.MobileStart"></div>
+            <div id="mobileSelect" rv-class-buttonhold="data.inputController.MobileSelect"></div>
+            <div id="mobileB"      rv-class-buttonhold="data.inputController.MobileB"></div>
+            <div id="mobileA"      rv-class-buttonhold="data.inputController.MobileA"></div>
+            <div id="divTouchSurface"><div id="startDiv"></div></div>
+            <div id="menuDiv"></div>
+        </div>
+    </div>
     <div id="mobileButtons" style="display:none;"></div>
     <div id="mydiv"></div>
     <div id="lblErrorOuter" style="display:none;"><div id="lblError"></div></div>
@@ -474,13 +493,15 @@
         statusBox.textContent = file.name.toUpperCase() + ' — LOADING...';
         statusBox.style.display = 'block';
 
-        // Set file on input WITHOUT dispatching change (script.js watches it natively)
+        // Set file on input — script.js has its own change listener on #file-upload
         try {
             const dt = new DataTransfer();
             dt.items.add(file);
             fileInput.files = dt.files;
-            // Trigger script.js upload handler directly — avoids re-entering our code
-            if (typeof myApp !== 'undefined') myApp.uploadRom();
+            // Use setTimeout to ensure script.js is fully initialized first
+            setTimeout(() => {
+                fileInput.dispatchEvent(new Event('change'));
+            }, 100);
         } catch(err) {
             console.error('Drop failed:', err);
         }
