@@ -35,73 +35,55 @@
             background: var(--bg);
             color: var(--green);
             font-family: 'VT323', monospace;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100vh;
         }
 
         /* CUSTOM CURSOR */
         #custom-cursor {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 16px; height: 16px;
-            pointer-events: none;
-            z-index: 99999;
+            pointer-events: none; z-index: 99999;
             transform: translate(-50%, -50%);
         }
         #custom-cursor::before, #custom-cursor::after {
-            content: '';
-            position: absolute;
-            background: var(--green);
-            box-shadow: 0 0 6px var(--green);
+            content: ''; position: absolute;
+            background: var(--green); box-shadow: 0 0 6px var(--green);
         }
         #custom-cursor::before { width: 2px; height: 16px; left: 7px; top: 0; }
         #custom-cursor::after  { width: 16px; height: 2px; top: 7px; left: 0; }
         #cursor-dot {
-            position: fixed;
-            width: 4px; height: 4px;
+            position: fixed; width: 4px; height: 4px;
             background: var(--green);
             box-shadow: 0 0 8px var(--green), 0 0 16px var(--green);
-            pointer-events: none;
-            z-index: 100000;
+            pointer-events: none; z-index: 100000;
             transform: translate(-50%, -50%);
         }
 
         /* PARTICLE CANVAS */
         #particleCanvas {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
+            z-index: 0; pointer-events: none;
         }
 
         /* SCANLINES */
         body::before {
-            content: '';
-            position: fixed;
+            content: ''; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: repeating-linear-gradient(
-                0deg,
-                transparent, transparent 2px,
+                0deg, transparent, transparent 2px,
                 rgba(0,0,0,0.13) 2px, rgba(0,0,0,0.13) 4px
             );
-            pointer-events: none;
-            z-index: 9998;
+            pointer-events: none; z-index: 9998;
         }
 
-        /* MAIN WRAPPER */
-        #app {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 18px;
-            width: 100%;
-            padding: 24px;
+        /* CENTERED LAYOUT */
+        #pageWrap {
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: 100vh;
+            gap: 18px; padding: 24px;
         }
 
         /* HEADER */
@@ -115,95 +97,78 @@
         }
         .retro-sub {
             font-family: 'VT323', monospace;
-            font-size: 15px;
-            color: var(--green-dim);
-            letter-spacing: 8px;
-            margin-top: -10px;
+            font-size: 15px; color: var(--green-dim);
+            letter-spacing: 8px; margin-top: -10px;
             animation: blink-slow 3s step-end infinite;
         }
         @keyframes flicker {
             0%,19%,21%,23%,25%,54%,56%,100% { opacity: 1; }
             20%,24%,55% { opacity: 0.75; }
         }
-        @keyframes blink-slow {
-            0%,100% { opacity: 1; } 50% { opacity: 0.35; }
-        }
+        @keyframes blink-slow { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
-        /* DROP ZONE */
+        /* DROP ZONE — script.js owns the logic, we own the style */
         #dropArea {
-            width: min(580px, 92vw);
-            min-height: 280px;
-            border: 3px dashed var(--green-dim);
-            background: rgba(0,255,65,0.02);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 40px 32px;
-            transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-            box-shadow: 0 0 30px rgba(0,255,65,0.06), inset 0 0 40px rgba(0,0,0,0.4);
-            position: relative;
+            width: min(560px, 92vw) !important;
+            min-height: 260px !important;
+            border: 3px dashed var(--green-dim) !important;
+            background: rgba(0,255,65,0.02) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 14px !important;
+            padding: 40px 32px !important;
+            transition: border-color 0.15s, background 0.15s, box-shadow 0.15s !important;
+            box-shadow: 0 0 30px rgba(0,255,65,0.06), inset 0 0 40px rgba(0,0,0,0.4) !important;
+            position: relative !important;
+            color: var(--green-dim) !important;
         }
-        /* Corner pixel accents */
+        /* Corner accents */
         #dropArea::before, #dropArea::after {
-            content: '';
-            position: absolute;
+            content: ''; position: absolute;
             width: 14px; height: 14px;
-            border-color: var(--green);
-            border-style: solid;
-            opacity: 0.6;
+            border-color: var(--green); border-style: solid; opacity: 0.5;
         }
         #dropArea::before { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
         #dropArea::after  { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
 
-        #dropArea.drag-over {
-            border-color: var(--green);
-            background: rgba(0,255,65,0.06);
-            box-shadow: 0 0 60px rgba(0,255,65,0.22), inset 0 0 30px rgba(0,255,65,0.04);
-        }
-        #dropArea.drag-over .drop-icon {
-            color: var(--green);
-            text-shadow: 0 0 30px var(--green);
-            transform: translateY(-6px) scale(1.12);
+        /* script.js adds lightblue bg on drag — we intercept with our style */
+        #dropArea[style*="lightblue"] {
+            background: rgba(0,255,65,0.07) !important;
+            border-color: var(--green) !important;
+            box-shadow: 0 0 60px rgba(0,255,65,0.2) !important;
         }
 
         .drop-icon {
-            font-size: 54px;
-            color: var(--green-dim);
+            font-size: 52px; color: var(--green-dim);
             text-shadow: 0 0 14px var(--green-dim);
-            transition: all 0.2s;
         }
         .drop-title {
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(9px, 2vw, 14px);
+            font-size: clamp(9px, 2vw, 13px);
             color: var(--green);
             text-shadow: 0 0 10px var(--green);
-            letter-spacing: 3px;
-            text-align: center;
+            letter-spacing: 3px; text-align: center;
         }
         .drop-sub {
             font-family: 'VT323', monospace;
-            font-size: 19px;
-            color: var(--green-dim);
-            letter-spacing: 2px;
-            text-align: center;
+            font-size: 19px; color: var(--green-dim);
+            letter-spacing: 2px; text-align: center;
         }
         .drop-divider {
             font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
-            color: rgba(0,255,65,0.22);
+            font-size: 7px; color: rgba(0,255,65,0.22);
             letter-spacing: 6px;
         }
         .drop-hint {
             font-family: 'VT323', monospace;
-            font-size: 13px;
-            color: rgba(0,255,65,0.28);
+            font-size: 13px; color: rgba(0,255,65,0.28);
             letter-spacing: 2px;
         }
 
         /* BROWSE BUTTON */
-        .btn-browse {
+        #btnBrowse {
             font-family: 'Press Start 2P', monospace !important;
             font-size: 9px !important;
             background: var(--bg2) !important;
@@ -215,68 +180,50 @@
             padding: 10px 22px !important;
             text-shadow: 0 0 6px var(--green) !important;
             letter-spacing: 2px !important;
-            transition: none !important;
         }
-        .btn-browse:hover {
+        #btnBrowse:hover {
             background: var(--green-dark) !important;
             box-shadow: 0 0 22px rgba(0,255,65,0.5) !important;
             transform: translate(-1px, -1px) !important;
-            color: var(--green) !important;
         }
-        .btn-browse:active {
+        #btnBrowse:active {
             transform: translate(2px, 2px) !important;
             border-bottom-width: 2px !important;
             border-right-width: 2px !important;
         }
 
-        /* STATUS / ERROR */
-        #statusBox {
-            display: none;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            letter-spacing: 2px;
-            text-align: center;
-            padding: 10px 20px;
-            max-width: min(580px, 92vw);
-            width: 100%;
-        }
-        #statusBox.ok {
-            color: var(--green);
-            border: 2px solid var(--green-dark);
-            text-shadow: 0 0 8px var(--green);
-            animation: blink-slow 1.5s step-end infinite;
-        }
-        #statusBox.err {
-            color: #ff4141;
-            border: 2px solid #ff4141;
-            background: rgba(255,65,65,0.04);
-        }
-
-        /* PIXEL DISSOLVE PARTICLES */
+        /* PIXEL DISSOLVE */
         .pixel-particle {
-            position: fixed;
-            width: 4px; height: 4px;
+            position: fixed; width: 4px; height: 4px;
             background: var(--green);
-            pointer-events: none;
-            z-index: 9999;
+            pointer-events: none; z-index: 9999;
             image-rendering: pixelated;
         }
 
+        /* Hide all emulator UI we don't want visible */
+        #topPanel, #bottomPanel, #mobileDiv,
+        #mobileButtons, #loginModal, #buttonsModal,
+        #lblErrorOuter { display: none !important; }
+
+        /* But show topPanel when script.js calls $('#topPanel').show() */
+        /* We override the hide so the drop area inside it is visible */
+        #topPanel { display: block !important; }
+
         input[type="file"] { display: none; }
+
+        canvas#canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: -1;
+        }
 
         /* BOOT SCREEN */
         #bootScreen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg);
-            z-index: 99990;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 99990;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
             font-family: 'Press Start 2P', monospace;
-            font-size: 11px;
-            color: var(--green);
+            font-size: 11px; color: var(--green);
         }
         #bootText { text-align: left; width: 400px; max-width: 90vw; }
         #bootText p { margin: 5px 0; text-shadow: 0 0 8px var(--green); }
@@ -305,50 +252,35 @@
         </div>
     </div>
 
-    <!-- Emulator canvas (hidden, used by script.js) -->
-    <canvas id="canvas" style="width:640px;display:none;"></canvas>
+    <!-- Emulator canvas -->
+    <canvas id="canvas" style="display:none;"></canvas>
     <script src="gl2gpu.js"></script>
 
-    <!-- Main UI -->
-    <div id="app">
+    <div id="pageWrap">
         <div class="retro-header"><i class="fa fa-gamepad"></i> N64 EMULATOR <i class="fa fa-gamepad"></i></div>
         <div class="retro-sub"><i class="fa fa-microchip"></i> WEBASSEMBLY POWERED <i class="fa fa-microchip"></i></div>
 
-        <div id="dropArea">
-            <div class="drop-icon"><i class="fa fa-cart-flatbed"></i></div>
-            <div class="drop-title">INSERT CARTRIDGE</div>
-            <div class="drop-sub">Drag &amp; drop your ROM file here</div>
-            <div class="drop-divider">-- OR --</div>
-            <button class="btn btn-browse" id="btnBrowse">
-                <i class="fa fa-folder-open"></i> BROWSE FILE
-            </button>
-            <div class="drop-hint">.n64 &nbsp;&nbsp; .z64 &nbsp;&nbsp; .v64 &nbsp;&nbsp; .rom &nbsp;&nbsp; .zip</div>
-        </div>
-
-        <div id="statusBox"></div>
-    </div>
-
-    <!-- Hidden file inputs (used by emulator internals) -->
-    <input id="file-upload"     type="file" accept=".n64,.z64,.v64,.rom,.zip,.7z">
-    <input id="file-upload-eep" type="file">
-    <input id="file-upload-sra" type="file">
-    <input id="file-upload-fla" type="file">
-
-    <!-- Emulator panels — script.js/rivets requires these DOM elements to exist -->
-    <div id="maindiv" style="display:none;">
+        <!-- script.js binds to #topPanel and looks for #dropArea inside it -->
         <div id="topPanel">
-            <div rv-if="data.beforeEmulatorStarted">
-                <select id="romselect" style="display:none;"><option rv-each-rom="data.romList" rv-value="rom.url">{rom.title}</option></select>
-                <select id="savestateSelect" style="display:none;"><option rv-each-item="data.n64SaveStates" rv-value="item.Name">{item.Name}</option></select>
-                <div id="dbSaveStates" rv-if="data.loggedIn | ev '==true'"></div>
-                <div id="dropAreaOriginal" style="display:none;"></div>
+            <div id="dropArea">
+                <div class="drop-icon"><i class="fa fa-cart-flatbed"></i></div>
+                <div class="drop-title">INSERT CARTRIDGE</div>
+                <div class="drop-sub">Drag &amp; drop your ROM file here</div>
+                <div class="drop-divider">-- OR --</div>
+                <button id="btnBrowse" onclick="myApp.uploadBrowse()">
+                    <i class="fa fa-folder-open"></i> BROWSE FILE
+                </button>
+                <div class="drop-hint">.n64 &nbsp;&nbsp; .z64 &nbsp;&nbsp; .v64 &nbsp;&nbsp; .rom &nbsp;&nbsp; .zip</div>
             </div>
-            <div rv-hide="data.beforeEmulatorStarted"></div>
         </div>
-        <div id="bottomPanel" rv-hide="data.beforeEmulatorStarted"></div>
+
+        <div id="bottomPanel"></div>
+        <div id="mydiv"></div>
+        <div id="lblErrorOuter" style="display:none;"><div id="lblError"></div></div>
     </div>
-    <div id="mobileDiv"     style="display:none;">
-        <div id="mobileCanvas"></div>
+
+    <!-- Required by script.js rivets bindings -->
+    <div id="mobileButtons" style="display:none;">
         <div id="mobileBottomPanel">
             <div id="mobileStart"  rv-class-buttonhold="data.inputController.MobileStart"></div>
             <div id="mobileSelect" rv-class-buttonhold="data.inputController.MobileSelect"></div>
@@ -358,9 +290,19 @@
             <div id="menuDiv"></div>
         </div>
     </div>
-    <div id="mobileButtons" style="display:none;"></div>
-    <div id="mydiv"></div>
-    <div id="lblErrorOuter" style="display:none;"><div id="lblError"></div></div>
+    <div id="mobileDiv" style="display:none;">
+        <div id="mobileCanvas"></div>
+    </div>
+
+    <!-- Required by script.js rivets bindings -->
+    <div class="modal fade" id="loginModal"   tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"></div></div></div>
+    <div class="modal fade" id="buttonsModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"></div></div></div>
+
+    <!-- File inputs — script.js attaches its own listeners to these -->
+    <input id="file-upload"     type="file">
+    <input id="file-upload-eep" type="file">
+    <input id="file-upload-sra" type="file">
+    <input id="file-upload-fla" type="file">
 
     <script src="register_sw.js"></script>
     <script src="settings.js"></script>
@@ -368,7 +310,7 @@
     <script src="script.js"></script>
 
     <script>
-    // ── CURSOR ─────────────────────────────────────
+    // ── CURSOR ──────────────────────────────────
     const cursor = document.getElementById('custom-cursor');
     const dot    = document.getElementById('cursor-dot');
     document.addEventListener('mousemove', e => {
@@ -376,26 +318,23 @@
         cursor.style.top  = dot.style.top  = e.clientY + 'px';
     });
 
-    // ── PARTICLES ──────────────────────────────────
+    // ── PARTICLES ───────────────────────────────
     const pc   = document.getElementById('particleCanvas');
     const pctx = pc.getContext('2d');
     let W, H, particles = [];
     function resizePC() { W = pc.width = window.innerWidth; H = pc.height = window.innerHeight; }
     resizePC();
     window.addEventListener('resize', resizePC);
-
     class Particle {
         constructor() { this.reset(); }
         reset() {
-            this.x = Math.random() * W;
-            this.y = Math.random() * H;
-            this.size    = Math.random() < 0.7 ? 2 : 4;
-            this.speedX  = (Math.random() - 0.5) * 0.4;
-            this.speedY  = -Math.random() * 0.5 - 0.1;
-            this.life    = Math.random() * 300 + 100;
-            this.maxLife = this.life;
-            this.alpha   = Math.random() * 0.5 + 0.1;
-            this.grid    = Math.random() < 0.15;
+            this.x = Math.random() * W; this.y = Math.random() * H;
+            this.size = Math.random() < 0.7 ? 2 : 4;
+            this.speedX = (Math.random() - 0.5) * 0.4;
+            this.speedY = -Math.random() * 0.5 - 0.1;
+            this.life = Math.random() * 300 + 100; this.maxLife = this.life;
+            this.alpha = Math.random() * 0.5 + 0.1;
+            this.grid = Math.random() < 0.15;
             if (this.grid) { this.size = 2; this.speedX = this.speedY = 0; this.alpha = 0.07; }
         }
         update() {
@@ -417,11 +356,11 @@
         requestAnimationFrame(loop);
     })();
 
-    // ── PIXEL DISSOLVE ─────────────────────────────
+    // ── PIXEL DISSOLVE ──────────────────────────
     function spawnPixels(el) {
         const r = el.getBoundingClientRect();
         for (let i = 0; i < 14; i++) {
-            const p  = document.createElement('div');
+            const p = document.createElement('div');
             p.className = 'pixel-particle';
             const px = r.left + Math.random() * r.width;
             const py = r.top  + Math.random() * r.height;
@@ -442,72 +381,11 @@
         }
     }
     document.addEventListener('mouseover', e => {
-        const el = e.target.closest('button, .btn');
+        const el = e.target.closest('button');
         if (el) spawnPixels(el);
     });
 
-    // ── DRAG & DROP ────────────────────────────────
-    const dropArea  = document.getElementById('dropArea');
-    const fileInput = document.getElementById('file-upload');
-    const statusBox = document.getElementById('statusBox');
-
-    // Browse button — delegate entirely to script.js
-    document.getElementById('btnBrowse').addEventListener('click', () => {
-        if (typeof myApp !== 'undefined') myApp.uploadBrowse();
-        else fileInput.click();
-    });
-
-    // Clicking anywhere on drop zone triggers browse
-    dropArea.addEventListener('click', e => {
-        if (!e.target.closest('button')) {
-            if (typeof myApp !== 'undefined') myApp.uploadBrowse();
-            else fileInput.click();
-        }
-    });
-
-    // Drag visual feedback
-    ['dragenter','dragover'].forEach(evt =>
-        dropArea.addEventListener(evt, e => { e.preventDefault(); dropArea.classList.add('drag-over'); })
-    );
-    ['dragleave','dragend'].forEach(evt =>
-        dropArea.addEventListener(evt, () => dropArea.classList.remove('drag-over'))
-    );
-
-    // Drop — inject file into input then let script.js handle it naturally
-    dropArea.addEventListener('drop', e => {
-        e.preventDefault();
-        dropArea.classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (!file) return;
-
-        const ext = file.name.split('.').pop().toLowerCase();
-        const valid = ['n64','z64','v64','rom','zip','7z'];
-        if (!valid.includes(ext)) {
-            statusBox.className = 'err';
-            statusBox.textContent = 'INVALID FILE: .' + ext.toUpperCase();
-            statusBox.style.display = 'block';
-            return;
-        }
-
-        statusBox.className = 'ok';
-        statusBox.textContent = file.name.toUpperCase() + ' — LOADING...';
-        statusBox.style.display = 'block';
-
-        // Set file on input — script.js has its own change listener on #file-upload
-        try {
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            fileInput.files = dt.files;
-            // Use setTimeout to ensure script.js is fully initialized first
-            setTimeout(() => {
-                fileInput.dispatchEvent(new Event('change'));
-            }, 100);
-        } catch(err) {
-            console.error('Drop failed:', err);
-        }
-    });
-
-    // ── BOOT SEQUENCE ──────────────────────────────
+    // ── BOOT SEQUENCE ───────────────────────────
     const lines = ['b1','b2','b3','b4','b5','b6','b7'];
     let bi = 0;
     (function nextLine() {
