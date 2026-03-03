@@ -28,7 +28,8 @@
         }
 
         * { box-sizing: border-box; }
-        *, *:hover { cursor: none !important; }
+        /* FIX: removed cursor:none from * so file inputs can receive clicks */
+        *:not(#dropArea):not(#dropArea *):hover { cursor: none !important; }
 
         html, body {
             padding: 0; margin: 0;
@@ -107,7 +108,7 @@
         }
         @keyframes blink-slow { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
-        /* DROP ZONE — script.js owns the logic, we own the style */
+        /* DROP ZONE */
         #dropArea {
             width: min(560px, 92vw) !important;
             min-height: 260px !important;
@@ -143,7 +144,6 @@
         #dropArea::before { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
         #dropArea::after  { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
 
-        /* script.js adds lightblue bg on drag — we intercept with our style */
         #dropArea[style*="lightblue"] {
             background: rgba(0,255,65,0.07) !important;
             border-color: var(--green) !important;
@@ -186,15 +186,21 @@
         }
 
         /* Hide all emulator UI we don't want visible */
-        #topPanel, #bottomPanel, #mobileDiv,
+        #bottomPanel, #mobileDiv,
         #mobileButtons, #loginModal, #buttonsModal,
         #lblErrorOuter { display: none !important; }
 
-        /* But show topPanel when script.js calls $('#topPanel').show() */
-        /* We override the hide so the drop area inside it is visible */
         #topPanel { display: block !important; }
 
-        input[type="file"] { display: none; }
+        /* FIX: file inputs hidden off-screen, NOT display:none */
+        input[type="file"] {
+            position: fixed;
+            top: -200px;
+            left: -200px;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
 
         canvas#canvas {
             position: fixed; top: 0; left: 0;
@@ -246,9 +252,8 @@
         <div class="retro-header"><i class="fa fa-gamepad"></i> N64 EMULATOR <i class="fa fa-gamepad"></i></div>
         <div class="retro-sub"><i class="fa fa-microchip"></i> WEBASSEMBLY POWERED <i class="fa fa-microchip"></i></div>
 
-        <!-- script.js binds to #topPanel and looks for #dropArea inside it -->
         <div id="topPanel">
-            <div id="dropArea">
+            <div id="dropArea" onclick="myApp.uploadBrowse()">
                 <div class="drop-icon"><i class="fa fa-cart-flatbed"></i></div>
                 <div class="drop-title">INSERT CARTRIDGE</div>
                 <div class="drop-sub">Drag &amp; drop your ROM file here</div>
@@ -264,7 +269,7 @@
     <!-- register_sw.js needs #update-files -->
     <button id="update-files" style="display:none;"></button>
 
-    <!-- Required by script.js rivets bindings — must all exist at page load -->
+    <!-- Required by script.js rivets bindings -->
     <div id="mobileButtons" style="display:none;"></div>
     <div id="mobileBottomPanel" style="display:none;">
         <div id="mobileStart"   rv-class-buttonhold="data.inputController.MobileStart"></div>
@@ -282,7 +287,7 @@
     <div class="modal fade" id="loginModal"   tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"></div></div></div>
     <div class="modal fade" id="buttonsModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"></div></div></div>
 
-    <!-- File inputs — script.js attaches its own listeners to these -->
+    <!-- FIX: File inputs moved here, off-screen via CSS (not display:none) -->
     <input id="file-upload"     type="file">
     <input id="file-upload-eep" type="file">
     <input id="file-upload-sra" type="file">
@@ -388,3 +393,4 @@
     </script>
 </body>
 </html>
+
