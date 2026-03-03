@@ -123,6 +123,16 @@
             box-shadow: 0 0 30px rgba(0,255,65,0.06), inset 0 0 40px rgba(0,0,0,0.4) !important;
             position: relative !important;
             color: var(--green-dim) !important;
+            cursor: pointer !important;
+        }
+        #dropArea:hover {
+            border-color: var(--green) !important;
+            background: rgba(0,255,65,0.04) !important;
+            box-shadow: 0 0 40px rgba(0,255,65,0.15) !important;
+        }
+        #dropArea:hover .drop-icon {
+            color: var(--green) !important;
+            text-shadow: 0 0 20px var(--green) !important;
         }
         /* Corner accents */
         #dropArea::before, #dropArea::after {
@@ -262,14 +272,10 @@
 
         <!-- script.js binds to #topPanel and looks for #dropArea inside it -->
         <div id="topPanel">
-            <div id="dropArea">
+            <div id="dropArea" onclick="myApp.uploadBrowse()">
                 <div class="drop-icon"><i class="fa fa-cart-flatbed"></i></div>
                 <div class="drop-title">INSERT CARTRIDGE</div>
-                <div class="drop-sub">Drag &amp; drop your ROM file here</div>
-                <div class="drop-divider">-- OR --</div>
-                <button id="btnBrowse" onclick="myApp.uploadBrowse()">
-                    <i class="fa fa-folder-open"></i> BROWSE FILE
-                </button>
+                <div class="drop-sub">Drag &amp; drop or click to load ROM</div>
                 <div class="drop-hint">.n64 &nbsp;&nbsp; .z64 &nbsp;&nbsp; .v64 &nbsp;&nbsp; .rom &nbsp;&nbsp; .zip</div>
             </div>
         </div>
